@@ -1,4 +1,3 @@
-// controllers/insidenController.js
 const Insiden = require('../models/Insiden');
 
 // GET all incidents
@@ -13,6 +12,8 @@ const getInsidens = async (req, res) => {
 
 // POST a new incident
 const createInsiden = async (req, res) => {
+  console.log('Incoming POST request:', req.body); // Debugging line
+
   const { deskripsi, status, durasi, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
   const newInsiden = new Insiden({
@@ -24,14 +25,14 @@ const createInsiden = async (req, res) => {
     superbackbone,
     distribusi,
     access,
-    pilihan,
+    pilihan
   });
 
   try {
     const savedInsiden = await newInsiden.save();
-    res.status(201).json(savedInsiden);
+    res.status(201).json(savedInsiden); // Send back the created incident
   } catch (err) {
-    res.status(500).json({ message: 'Error creating incident' });
+    res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
 };
 
