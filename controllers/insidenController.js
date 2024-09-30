@@ -1,7 +1,7 @@
-const Insiden = require('../models/Insiden');
+import Insiden from '../models/Insiden.js';
 
 // GET all incidents
-const getInsidens = async (req, res) => {
+export const getInsidens = async (req, res) => {
   try {
     const insidens = await Insiden.find({});
     res.json(insidens);
@@ -11,12 +11,13 @@ const getInsidens = async (req, res) => {
 };
 
 // POST a new incident
-const createInsiden = async (req, res) => {
+export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
-  const { deskripsi, status, durasi, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
+  const { idInsiden, deskripsi, status, durasi, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
   const newInsiden = new Insiden({
+    idInsiden,
     deskripsi,
     status,
     durasi,
@@ -25,7 +26,7 @@ const createInsiden = async (req, res) => {
     superbackbone,
     distribusi,
     access,
-    pilihan
+    pilihan,
   });
 
   try {
@@ -37,7 +38,7 @@ const createInsiden = async (req, res) => {
 };
 
 // UPDATE an incident
-const updateInsiden = async (req, res) => {
+export const updateInsiden = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
@@ -50,7 +51,7 @@ const updateInsiden = async (req, res) => {
 };
 
 // DELETE an incident
-const deleteInsiden = async (req, res) => {
+export const deleteInsiden = async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -60,5 +61,3 @@ const deleteInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error deleting incident' });
   }
 };
-
-module.exports = { getInsidens, createInsiden, updateInsiden, deleteInsiden };

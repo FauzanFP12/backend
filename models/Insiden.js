@@ -1,7 +1,7 @@
-// models/Insiden.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const insidenSchema = new mongoose.Schema({
+  idInsiden: { type: String, required: true },
   deskripsi: { type: String, required: true },
   status: { type: String, required: true },
   tanggalStart: { type: Date, default: Date.now },
@@ -16,4 +16,4 @@ const insidenSchema = new mongoose.Schema({
 
 const Insiden = mongoose.model('Insiden', insidenSchema);
 
-module.exports = Insiden;
+export default Insiden;

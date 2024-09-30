@@ -1,11 +1,10 @@
-// routes/insidenRoutes.js
-const express = require('express');
-const {
-  getInsidens,
-  createInsiden,
-  updateInsiden,
-  deleteInsiden
-} = require('../controllers/insidenController');
+import express from 'express';
+import { 
+  getInsidens, 
+  createInsiden, 
+  updateInsiden, 
+  deleteInsiden 
+} from '../controllers/insidenController.js';
 
 const router = express.Router();
 
@@ -15,4 +14,4 @@ router.post('/', createInsiden); // POST a new incident
 router.put('/:id', updateInsiden); // UPDATE an incident
 router.delete('/:id', deleteInsiden); // DELETE an incident
 
-module.exports = router;
+export default router;
