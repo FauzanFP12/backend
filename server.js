@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json()); 
 
 // MongoDB connection using environment variables for the URI
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/local', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
