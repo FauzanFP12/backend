@@ -14,13 +14,14 @@ export const getInsidens = async (req, res) => {
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
-  const { idInsiden, deskripsi, status, durasi, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
+  const { idInsiden, deskripsi, status, tanggalStart,tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    durasi,
+    tanggalStart,
+    tanggalSubmit,
     sbu,
     backbone,
     superbackbone,
