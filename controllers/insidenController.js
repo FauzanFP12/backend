@@ -29,6 +29,8 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
+    elapsedTime: 0,  // Start with 0 elapsed time
+
   });
 
   try {
@@ -52,7 +54,7 @@ export const updateInsiden = async (req, res) => {
   }
 };
 
-// CLOSE an incident and calculate elapsed time
+// CLOSE an incident and stop elapsed time
 export const closeInsiden = async (req, res) => {
   const { id } = req.params;
 
@@ -63,14 +65,14 @@ export const closeInsiden = async (req, res) => {
       return res.status(404).json({ message: 'Incident not found' });
     }
 
-    // Calculate the elapsed time
     const currentTime = new Date();
-    const elapsedTime = currentTime - new Date(insiden.tanggalStart);
+    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalStart);  // Total time since start
+    const updatedElapsedTime = insiden.elapsedTime + elapsedMilliseconds;  // Accumulate previous elapsed time
 
-    // Update the incident status, elapsed time, and close time
+    // Update the incident's status and elapsed time
     insiden.status = 'Closed';
-    insiden.elapsedTime = (insiden.elapsedTime || 0) + elapsedTime;  // Accumulate previous elapsed time
-    insiden.closeTime = currentTime;
+    insiden.elapsedTime = updatedElapsedTime;  // Store the accumulated time
+    insiden.closeTime = currentTime;  // Store the time of closure
 
     await insiden.save();
     res.json(insiden);
@@ -79,7 +81,7 @@ export const closeInsiden = async (req, res) => {
   }
 };
 
-// REOPEN an incident and retain previous elapsed time
+// REOPEN an incident and continue tracking elapsed time
 export const reopenInsiden = async (req, res) => {
   const { id } = req.params;
 
@@ -90,8 +92,9 @@ export const reopenInsiden = async (req, res) => {
       return res.status(404).json({ message: 'Incident not found' });
     }
 
-    // Reopen the incident, reset the close time
+    // Reset the close time and set status to Open
     insiden.status = 'Open';
+    insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
     insiden.closeTime = null;  // Reset close time
 
     await insiden.save();
@@ -100,6 +103,7 @@ export const reopenInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error reopening incident', error: err.message });
   }
 };
+
 
 
 // DELETE an incident
