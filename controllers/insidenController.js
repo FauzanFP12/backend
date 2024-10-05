@@ -17,7 +17,7 @@ export const createInsiden = async (req, res) => {
   const { idInsiden, deskripsi, status, tanggalStart,tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
   const newInsiden = new Insiden({
-    idInsiden,
+    idInsiden, 
     deskripsi,
     status,
     tanggalStart,
