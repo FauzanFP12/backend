@@ -52,6 +52,56 @@ export const updateInsiden = async (req, res) => {
   }
 };
 
+// CLOSE an incident and calculate elapsed time
+export const closeInsiden = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const insiden = await Insiden.findById(id);
+
+    if (!insiden) {
+      return res.status(404).json({ message: 'Incident not found' });
+    }
+
+    // Calculate the elapsed time
+    const currentTime = new Date();
+    const elapsedTime = currentTime - new Date(insiden.tanggalStart);
+
+    // Update the incident status, elapsed time, and close time
+    insiden.status = 'Closed';
+    insiden.elapsedTime = (insiden.elapsedTime || 0) + elapsedTime;  // Accumulate previous elapsed time
+    insiden.closeTime = currentTime;
+
+    await insiden.save();
+    res.json(insiden);
+  } catch (err) {
+    res.status(500).json({ message: 'Error closing incident', error: err.message });
+  }
+};
+
+// REOPEN an incident and retain previous elapsed time
+export const reopenInsiden = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const insiden = await Insiden.findById(id);
+
+    if (!insiden) {
+      return res.status(404).json({ message: 'Incident not found' });
+    }
+
+    // Reopen the incident, reset the close time
+    insiden.status = 'Open';
+    insiden.closeTime = null;  // Reset close time
+
+    await insiden.save();
+    res.json(insiden);
+  } catch (err) {
+    res.status(500).json({ message: 'Error reopening incident', error: err.message });
+  }
+};
+
+
 // DELETE an incident
 export const deleteInsiden = async (req, res) => {
   const { id } = req.params;
