@@ -92,9 +92,8 @@ export const reopenInsiden = async (req, res) => {
       return res.status(404).json({ message: 'Incident not found' });
     }
 
-    // Reset the close time and set status to Open
+    // Reset the close time and set status to Open, but DO NOT change tanggalStart
     insiden.status = 'Open';
-    insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
     insiden.closeTime = null;  // Reset close time
 
     await insiden.save();
@@ -103,6 +102,7 @@ export const reopenInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error reopening incident', error: err.message });
   }
 };
+
 
 
 
