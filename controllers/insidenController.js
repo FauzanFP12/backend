@@ -14,13 +14,17 @@ export const getInsidens = async (req, res) => {
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
-  const { idInsiden, deskripsi, status, tanggalStart,tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
+  const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
+
+  // Adjust the submitted 'tanggalStart' time to GMT+7
+  const utcTime = new Date(tanggalStart); // Original UTC time from request
+  const gmt7Time = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000); // Convert UTC to GMT+7
 
   const newInsiden = new Insiden({
-    idInsiden, 
+    idInsiden,
     deskripsi,
     status,
-    tanggalStart,
+    tanggalStart: gmt7Time,  // Save adjusted GMT+7 time
     tanggalSubmit,
     sbu,
     backbone,
