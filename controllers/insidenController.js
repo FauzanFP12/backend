@@ -10,6 +10,11 @@ export const getInsidens = async (req, res) => {
   }
 };
 
+// Adjust the submitted time to GMT+7
+const utcTime = new Date(tanggalStart);
+const gmt7Time = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000); // Adjusting to GMT+7
+
+
 // POST a new incident
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
@@ -20,7 +25,7 @@ export const createInsiden = async (req, res) => {
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,
+    tanggalStart: gmt7Time,
     tanggalSubmit,
     sbu,
     backbone,
