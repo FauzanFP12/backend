@@ -11,6 +11,8 @@ const insidenSchema = new mongoose.Schema({
       return new Date(now.getTime() + 7 * 60 * 60 * 1000);  // Add 7 hours
     }
   },
+  elapsedTime: { type: Number, default: 0 },  // Total elapsed time in milliseconds
+  closeTime: { type: Date },  // Last time the incident was closed
   tanggalSubmit: { type: Date, required: true },
   durasi: { type: Number },
   sbu: { type: String },
