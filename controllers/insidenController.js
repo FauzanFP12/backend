@@ -16,17 +16,12 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  if (!tanggalStart || isNaN(Date.parse(tanggalStart))) {
-    return res.status(400).json({ message: 'Invalid date format for tanggalStart' });
-  }
   
-  const utcTime = new Date(tanggalStart); 
-  const gmt7Time = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000);
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart: gmt7Time,  // Save adjusted GMT+7 time
+    tanggalStart,  // Save adjusted GMT+7 time
     tanggalSubmit,
     sbu,
     backbone,
