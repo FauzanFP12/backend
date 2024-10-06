@@ -8,7 +8,7 @@ const insidenSchema = new mongoose.Schema({
     type: Date, 
     default: function() {
       const now = new Date();  // Current time in UTC
-      return new Date(now.getTime() + 7 * 60 * 60 * 1000);  // Add 7 hours
+      return new Date(now.getTime() + 7 * 60 * 60 * 1000 + 25197 * 1000); 
     }
   },
   elapsedTime: { type: Number, default: 0 },  // Total elapsed time in milliseconds

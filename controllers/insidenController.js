@@ -16,7 +16,12 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  
+  // Validate tanggalStart to ensure it is not in the future
+  const now = new Date();
+  if (new Date(tanggalStart) > now) {
+    return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
+  }
+
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
@@ -30,7 +35,6 @@ export const createInsiden = async (req, res) => {
     access,
     pilihan,
     elapsedTime: 0,  // Start with 0 elapsed time
-
   });
 
   try {
@@ -92,6 +96,12 @@ export const reopenInsiden = async (req, res) => {
       return res.status(404).json({ message: 'Incident not found' });
     }
 
+    // Ensure tanggalStart is not set in the future
+    const now = new Date();
+    if (insiden.tanggalStart > now) {
+      return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
+    }
+
     // Reset the close time and set status to Open
     insiden.status = 'Open';
     insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
@@ -103,8 +113,6 @@ export const reopenInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error reopening incident', error: err.message });
   }
 };
-
-
 
 // DELETE an incident
 export const deleteInsiden = async (req, res) => {
