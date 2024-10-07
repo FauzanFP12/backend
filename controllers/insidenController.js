@@ -22,20 +22,20 @@ export const createInsiden = async (req, res) => {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  // Initialize elapsedTime to 0
+  // Initialize elapsed time
   let elapsedTime = 0;
-
-  // If the status is "Closed", calculate elapsedTime from tanggalStart to the current time
+  
+  // If the status is "Closed", calculate the elapsed time between tanggalStart and now
   if (status === 'Closed') {
-    const elapsedMilliseconds = now - new Date(tanggalStart); // Calculate the time from start to now
-    elapsedTime = elapsedMilliseconds; // Store the calculated elapsed time
+    const elapsedMilliseconds = now - new Date(tanggalStart);
+    elapsedTime = elapsedMilliseconds;
   }
 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,  // Save adjusted GMT+7 time
+    tanggalStart,
     tanggalSubmit,
     sbu,
     backbone,
@@ -43,7 +43,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
- 
+    elapsedTime,  // Save calculated elapsed time
   });
 
   try {
@@ -67,7 +67,32 @@ export const updateInsiden = async (req, res) => {
   }
 };
 
+// CLOSE an incident and stop elapsed time
+export const closeInsiden = async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    const insiden = await Insiden.findById(id);
+
+    if (!insiden) {
+      return res.status(404).json({ message: 'Incident not found' });
+    }
+
+    const currentTime = new Date();
+    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalStart);  // Total time since start
+    const updatedElapsedTime = insiden.elapsedTime + elapsedMilliseconds;  // Accumulate previous elapsed time
+
+    // Update the incident's status and elapsed time
+    insiden.status = 'Closed';
+    insiden.elapsedTime = updatedElapsedTime;  // Store the accumulated time
+    insiden.closeTime = currentTime;  // Store the time of closure
+
+    await insiden.save();
+    res.json(insiden);
+  } catch (err) {
+    res.status(500).json({ message: 'Error closing incident', error: err.message });
+  }
+};
 
 // REOPEN an incident and continue tracking elapsed time
 export const reopenInsiden = async (req, res) => {
