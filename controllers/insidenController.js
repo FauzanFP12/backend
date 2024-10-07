@@ -3,7 +3,7 @@ import Insiden from '../models/Insiden.js';
 // Helper function to adjust a date to GMT+7
 const adjustToGMT7 = (date) => {
   const utcTime = new Date(date);
-  return new Date(utcTime.getTime() - 7 * 60 * 60 * 1000 - 25197 * 1000); // Adjusting to GMT+7
+  return new Date(utcTime.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); // Adjusting to GMT+7
 };
 
 // GET all incidents
@@ -22,30 +22,43 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  // Validate tanggalStart and tanggalSubmit to ensure they are not in the future
-  const now = new Date();
+  // Adjust dates to GMT+7
   const adjustedStartDate = adjustToGMT7(tanggalStart);
+  const adjustedSubmitDate = adjustToGMT7(tanggalSubmit);
 
-
+  // Validate `tanggalStart` and `tanggalSubmit` to ensure they are not in the future
+  const now = new Date();
+  
   if (adjustedStartDate > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  // Initialize elapsed time
- 
+  if (adjustedSubmitDate > now) {
+    return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
+  }
+
+  // Initialize elapsed time to 0
+  let elapsedTime = 0;
+
+  // Calculate elapsed time if status is 'Closed'
+  if (status === 'Closed') {
+    const elapsedMilliseconds = adjustedSubmitDate - adjustedStartDate;
+    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0; // Ensure non-negative elapsed time
+  }
+
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart : adjustedStartDate , // Save adjusted GMT+7 start time
-    tanggalSubmit,
+    tanggalStart: adjustedStartDate,  // Save adjusted GMT+7 start time
+    tanggalSubmit: adjustedSubmitDate,  // Save adjusted GMT+7 submit time
     sbu,
     backbone,
     superbackbone,
     distribusi,
     access,
     pilihan,
-    elapsedTime: 0,  // Start with 0 elapsed time
+    elapsedTime,  // Save calculated elapsed time
   });
 
   try {
