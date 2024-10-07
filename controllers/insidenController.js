@@ -1,5 +1,12 @@
 import Insiden from '../models/Insiden.js';
 
+// Helper function to add hours and subtract 25197 seconds from a date
+const adjustDate = (date) => {
+  const now = new Date(date);
+  return new Date(now.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000);
+};
+
+
 // GET all incidents
 export const getInsidens = async (req, res) => {
   try {
@@ -17,26 +24,16 @@ export const createInsiden = async (req, res) => {
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
   const now = new Date();
-  
-  const startDate = new Date(tanggalStart);
-  // Helper function to add hours to a date
-  const addHours = (date, hours) => {
-    const newDate = new Date(date);
-    newDate.setHours(newDate.getHours() + hours);
-    return newDate;
-  };
 
-  // Add 7 hours to the provided dates
-  const adjustedStartDate = addHours(startDate, 7);
-  
+  // Adjust tanggalStart by adding 7 hours and subtracting 25197 seconds
+  const adjustedStartDate = adjustDate(new Date(tanggalStart));
   const submitDate = new Date(tanggalSubmit);
-
 
   if (submitDate > now) {
     return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
   }
 
-  if (startDate > now) {
+  if (adjustedStartDate > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
