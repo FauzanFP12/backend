@@ -26,8 +26,8 @@ export const createInsiden = async (req, res) => {
   const now = new Date();
 
   // Adjust tanggalStart by adding 7 hours and subtracting 25197 seconds
-  const adjustedStartDate = adjustDate(new Date(tanggalStart));
-  const submitDate = new Date(tanggalSubmit);
+  const adjustedStartDate = adjustDate(new Date(tanggalSubmit));
+  const submitDate = new Date(tanggalStart);
 
   if (submitDate > now) {
     return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
@@ -51,8 +51,8 @@ export const createInsiden = async (req, res) => {
     idInsiden,
     deskripsi,
     status,
-    tanggalSubmit: adjustedStartDate,  // Use adjusted start date
-    tanggalStart,
+    tanggalStart: adjustedStartDate,  // Use adjusted start date
+    tanggalSubmit,
     sbu,
     backbone,
     superbackbone,
