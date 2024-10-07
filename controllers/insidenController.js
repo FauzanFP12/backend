@@ -1,18 +1,12 @@
 import Insiden from '../models/Insiden.js';
 
-// Helper function to adjust a date to GMT+7
-const adjustToGMT7 = (date) => {
-  const utcTime = new Date(date);
-  return new Date(utcTime.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); // Adjusting to GMT+7
-};
-
 // GET all incidents
 export const getInsidens = async (req, res) => {
   try {
     const insidens = await Insiden.find({});
     res.json(insidens);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching incidents', error: err.message });
+    res.status(500).json({ message: 'Error fetching incidents' });
   }
 };
 
@@ -22,23 +16,18 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  // Validate tanggalStart and tanggalSubmit to ensure they are not in the future
+  // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
-  const adjustedStartDate = adjustToGMT7(tanggalSubmit);
-
-
-  if (adjustedStartDate > now) {
+  if (new Date(tanggalStart) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  // Initialize elapsed time
- 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart , // Save adjusted GMT+7 start time
-    tanggalSubmit: adjustedStartDate,
+    tanggalStart,  // Save adjusted GMT+7 time
+    tanggalSubmit,
     sbu,
     backbone,
     superbackbone,
