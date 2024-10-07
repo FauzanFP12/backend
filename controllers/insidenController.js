@@ -1,5 +1,16 @@
 import Insiden from '../models/Insiden.js';
 
+// GET all incidents
+export const getInsidens = async (req, res) => {
+  try {
+    const insidens = await Insiden.find({});
+    res.json(insidens);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching incidents' });
+  }
+};
+
+// POST a new incident
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
@@ -20,11 +31,12 @@ export const createInsiden = async (req, res) => {
     elapsedTime = elapsedMilliseconds; // Store the calculated elapsed time
   }
 
+
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,  // Save the start date
+    tanggalStart,  // Save adjusted GMT+7 time
     tanggalSubmit,
     sbu,
     backbone,
@@ -32,7 +44,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Set the calculated or default elapsed time
+    elapsedTime,  // Start with 0 elapsed time
   });
 
   try {
