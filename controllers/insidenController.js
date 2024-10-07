@@ -16,16 +16,18 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
+
+  const now = new Date();
+  if (new Date(tanggalStart) > now) {
+    return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
+  }
+
   let elapsedTime = 0;
   if (status === 'Closed') {
     const elapsedMilliseconds = now - new Date(tanggalStart); // Time from start to now
     elapsedTime = elapsedMilliseconds; // Set elapsed time in milliseconds
   }
 
-  const now = new Date();
-  if (new Date(tanggalStart) > now) {
-    return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
-  }
 
   const newInsiden = new Insiden({
     idInsiden,
