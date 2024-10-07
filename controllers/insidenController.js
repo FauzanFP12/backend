@@ -18,6 +18,7 @@ export const createInsiden = async (req, res) => {
 
   // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
+  
   if (new Date(tanggalSubmit) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
@@ -52,6 +53,7 @@ export const createInsiden = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
+  return new Date(now.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); 
 };
 
 // UPDATE an incident
