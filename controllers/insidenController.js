@@ -56,7 +56,6 @@ export const createInsiden = async (req, res) => {
   
 };
 
-perbaiki
 
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
