@@ -43,7 +43,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Start with 0 elapsed time
+ 
   });
 
   try {
