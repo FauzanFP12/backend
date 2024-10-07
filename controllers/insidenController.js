@@ -22,6 +22,15 @@ export const createInsiden = async (req, res) => {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
+  // Initialize elapsedTime to 0
+  let elapsedTime = 0;
+
+  // If the status is "Closed", calculate elapsedTime from tanggalStart to the current time
+  if (status === 'Closed') {
+    const elapsedMilliseconds = now - new Date(tanggalStart); // Calculate the time from start to now
+    elapsedTime = elapsedMilliseconds; // Store the calculated elapsed time
+  }
+
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
@@ -34,7 +43,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime: 10,  // Start with 0 elapsed time
+    elapsedTime,  // Start with 0 elapsed time
   });
 
   try {

@@ -11,12 +11,7 @@ const insidenSchema = new mongoose.Schema({
       return new Date(now.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); 
     }
   },
-  elapsedTime: { type: Number, default: function(){
-    const currentDate = new Date(); // Get current date and time
-    const gmt7Date = addGMT7(currentDate); // Adjust to GMT+7
-    elapsedTime = gmt7Date - startDate; // Time running until now
-  }
-   },  // Total elapsed time in milliseconds
+  elapsedTime: { type: Number, default: 0 }, 
   closeTime: { type: Date },  // Last time the incident was closed
   tanggalSubmit: { type: Date, required: true },
   durasi: { type: Number },
