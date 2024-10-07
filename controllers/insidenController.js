@@ -16,27 +16,42 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  // Validate tanggalStart to ensure it is not in the future
-  const now = new Date();
+  // Helper function to add hours to a date
+  const addHours = (date, hours) => {
+    const newDate = new Date(date);
+    newDate.setHours(newDate.getHours() + hours);
+    return newDate;
+  };
+
+  // Add 7 hours to the provided dates
+  const adjustedStartDate = addHours(startDate, 7);
   
-  if (new Date(tanggalSubmit) > now) {
+  const submitDate = new Date(tanggalSubmit);
+
+
+  if (submitDate > now) {
+    return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
+  }
+
+  if (startDate > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  // Initialize elapsed time
+  // Initialize elapsed time to 0 by default
   let elapsedTime = 0;
-  
-  // If the status is "Closed", calculate the elapsed time between tanggalStart and now
+
+  // If the status is "Closed", calculate the elapsed time between start and submit date
   if (status === 'Closed') {
-    const elapsedMilliseconds = now - new Date(tanggalSubmit);
-    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0;  // Ensure elapsed time is non-negative
+    const elapsedMilliseconds = submitDate - adjustedStartDate;
+    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0;  // Ensure non-negative elapsed time
   }
 
+  // Prepare the new incident object
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,
+    tanggalStart: adjustedStartDate,  // Use adjusted start date
     tanggalSubmit,
     sbu,
     backbone,
@@ -44,17 +59,18 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Save calculated elapsed time
+    elapsedTime,  // Save the calculated elapsed time
   });
 
   try {
+    // Save the new incident
     const savedInsiden = await newInsiden.save();
     res.status(201).json(savedInsiden); // Send back the created incident
   } catch (err) {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
-  return new Date(now.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); 
 };
+
 
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
