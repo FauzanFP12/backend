@@ -16,6 +16,9 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
+  const currentDate = new Date(); // Get current date and time
+  const gmt7Date = addGMT7(currentDate); // Adjust to GMT+7
+  elapsedTime = gmt7Date - startDate; // Time running until now
   // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
   if (new Date(tanggalStart) > now) {
@@ -34,7 +37,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime: 0,  // Start with 0 elapsed time
+    elapsedTime: elapsedTime,  // Start with 0 elapsed time
   });
 
   try {
