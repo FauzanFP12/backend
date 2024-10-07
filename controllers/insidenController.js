@@ -24,7 +24,7 @@ export const createInsiden = async (req, res) => {
 
   // Validate tanggalStart and tanggalSubmit to ensure they are not in the future
   const now = new Date();
-  const adjustedStartDate = adjustToGMT7(tanggalStart);
+  const adjustedStartDate = adjustToGMT7(tanggalSubmit);
 
 
   if (adjustedStartDate > now) {
