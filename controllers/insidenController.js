@@ -1,39 +1,30 @@
 import Insiden from '../models/Insiden.js';
 
-// GET all incidents
-export const getInsidens = async (req, res) => {
-  try {
-    const insidens = await Insiden.find({});
-    res.json(insidens);
-  } catch (err) {
-    res.status(500).json({ message: 'Error fetching incidents' });
-  }
-};
-
-// POST a new incident
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-
+  // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
   if (new Date(tanggalStart) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
+  // Initialize elapsedTime to 0
   let elapsedTime = 0;
-  if (status === 'Closed') {
-    const elapsedMilliseconds = now - new Date(tanggalStart); // Time from start to now
-    elapsedTime = elapsedMilliseconds; // Set elapsed time in milliseconds
-  }
 
+  // If the status is "Closed" at creation, calculate the elapsed time
+  if (status === 'Closed') {
+    const elapsedMilliseconds = now - new Date(tanggalStart); // Calculate time from start to now
+    elapsedTime = elapsedMilliseconds; // Store the calculated elapsed time
+  }
 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,  // Save adjusted GMT+7 time
+    tanggalStart,  // Save the start date
     tanggalSubmit,
     sbu,
     backbone,
@@ -41,7 +32,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Start with elapsed time
+    elapsedTime,  // Set the calculated or default elapsed time
   });
 
   try {
