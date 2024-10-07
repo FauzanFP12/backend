@@ -18,15 +18,25 @@ export const createInsiden = async (req, res) => {
 
   // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
-  if (new Date(tanggalStart) > now) {
+  
+  if (new Date(tanggalSubmit) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
+  }
+
+  // Initialize elapsed time
+  let elapsedTime = 0;
+  
+  // If the status is "Closed", calculate the elapsed time between tanggalStart and now
+  if (status === 'Closed') {
+    const elapsedMilliseconds = now - new Date(tanggalSubmit);
+    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0;  // Ensure elapsed time is non-negative
   }
 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart,  // Save adjusted GMT+7 time
+    tanggalStart,
     tanggalSubmit,
     sbu,
     backbone,
@@ -34,7 +44,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime: 0,  // Start with 0 elapsed time
+    elapsedTime,  // Save calculated elapsed time
   });
 
   try {
@@ -43,7 +53,10 @@ export const createInsiden = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
+  
 };
+
+perbaiki
 
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
@@ -70,7 +83,7 @@ export const closeInsiden = async (req, res) => {
     }
 
     const currentTime = new Date();
-    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalStart);  // Total time since start
+    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalSubmit);  // Total time since start
     const updatedElapsedTime = insiden.elapsedTime + elapsedMilliseconds;  // Accumulate previous elapsed time
 
     // Update the incident's status and elapsed time
@@ -98,13 +111,13 @@ export const reopenInsiden = async (req, res) => {
 
     // Ensure tanggalStart is not set in the future
     const now = new Date();
-    if (insiden.tanggalStart > now) {
+    if (insiden.tanggalSubmit > now) {
       return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
     }
 
     // Reset the close time and set status to Open
     insiden.status = 'Open';
-    insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
+    insiden.tanggalSubmit = new Date();  // Set a new start time to continue tracking from now
     insiden.closeTime = null;  // Reset close time
 
     await insiden.save();
