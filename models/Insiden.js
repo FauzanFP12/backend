@@ -4,7 +4,7 @@ const insidenSchema = new mongoose.Schema({
   idInsiden: { type: String, required: true },
   deskripsi: { type: String, required: true },
   status: { type: String, required: true },
-  tanggalStart: { 
+  tanggalSubmit: { 
     type: Date, 
     default: function() {
       const now = new Date();  // Current time in UTC
@@ -13,7 +13,7 @@ const insidenSchema = new mongoose.Schema({
   },
   elapsedTime: { type: Number, default: 0 }, 
   closeTime: { type: Date },  // Last time the incident was closed
-  tanggalSubmit: { type: Date, required: true },
+  tanggalStart: { type: Date, required: true },
   durasi: { type: Number },
   sbu: { type: String },
   backbone: { type: String },
