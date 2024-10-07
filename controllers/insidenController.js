@@ -16,6 +16,9 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
+  const now = new Date();
+  
+  const startDate = new Date(tanggalStart);
   // Helper function to add hours to a date
   const addHours = (date, hours) => {
     const newDate = new Date(date);
