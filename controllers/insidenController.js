@@ -37,8 +37,8 @@ export const createInsiden = async (req, res) => {
     idInsiden,
     deskripsi,
     status,
-    tanggalStart: adjustedStartDate, // Save adjusted GMT+7 start time
-    tanggalSubmit,
+    tanggalStart , // Save adjusted GMT+7 start time
+    tanggalSubmit: adjustedStartDate,
     sbu,
     backbone,
     superbackbone,
