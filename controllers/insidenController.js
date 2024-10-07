@@ -1,43 +1,55 @@
 import Insiden from '../models/Insiden.js';
 
+// Helper function to adjust a date to GMT+7
+const adjustToGMT7 = (date) => {
+  const utcTime = new Date(date);
+  return new Date(utcTime.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); // Adjusting to GMT+7
+};
+
 // GET all incidents
 export const getInsidens = async (req, res) => {
   try {
     const insidens = await Insiden.find({});
     res.json(insidens);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching incidents' });
+    res.status(500).json({ message: 'Error fetching incidents', error: err.message });
   }
 };
 
-// Adjust the submitted time to GMT+7
-const utcTime = new Date(tanggalStart);
-const gmt7Time = new Date(utcTime.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000); // Adjusting to GMT+7
 // POST a new incident
 export const createInsiden = async (req, res) => {
   console.log('Incoming POST request:', req.body); // Debugging line
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  // Validate tanggalStart to ensure it is not in the future
+  // Validate tanggalStart and tanggalSubmit to ensure they are not in the future
   const now = new Date();
-  if (new Date(tanggalStart) > now) {
+  const adjustedStartDate = adjustToGMT7(tanggalStart);
+
+
+  if (adjustedStartDate > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
+  if (adjustedSubmitDate > now) {
+    return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
+  }
+
+  // Initialize elapsed time
+ 
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart : gmt7Time,  // Save adjusted GMT+7 time
-    tanggalSubmit,
+    tanggalStart: adjustedStartDate, // Save adjusted GMT+7 start time
+    tanggalSubmit, // Save adjusted GMT+7 submit time
     sbu,
     backbone,
     superbackbone,
     distribusi,
     access,
     pilihan,
-    elapsedTime: 0,  // Start with 0 elapsed time
+    elapsedTime,  // Save calculated elapsed time
   });
 
   try {
@@ -47,7 +59,6 @@ export const createInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
 };
-
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
   const { id } = req.params;
