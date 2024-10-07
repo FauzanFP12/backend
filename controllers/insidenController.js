@@ -1,12 +1,5 @@
 import Insiden from '../models/Insiden.js';
 
-// Helper function to add hours and subtract 25197 seconds from a date
-const adjustDate = (date) => {
-  const now = new Date(date);
-  return new Date(now.getTime() + 7 * 60 * 60 * 1000 - 25197 * 1000);
-};
-
-
 // GET all incidents
 export const getInsidens = async (req, res) => {
   try {
@@ -23,35 +16,17 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
+  // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
-
-  // Adjust tanggalStart by adding 7 hours and subtracting 25197 seconds
-  const adjustedStartDate = adjustDate(new Date(tanggalSubmit));
-  const submitDate = new Date(tanggalStart);
-
-  if (submitDate > now) {
-    return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
-  }
-
-  if (adjustedStartDate > now) {
+  if (new Date(tanggalStart) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  // Initialize elapsed time to 0 by default
-  let elapsedTime = 0;
-
-  // If the status is "Closed", calculate the elapsed time between start and submit date
-  if (status === 'Closed') {
-    const elapsedMilliseconds = submitDate - adjustedStartDate;
-    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0;  // Ensure non-negative elapsed time
-  }
-
-  // Prepare the new incident object
   const newInsiden = new Insiden({
     idInsiden,
     deskripsi,
     status,
-    tanggalStart: adjustedStartDate,  // Use adjusted start date
+    tanggalStart,  // Save adjusted GMT+7 time
     tanggalSubmit,
     sbu,
     backbone,
@@ -59,18 +34,16 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Save the calculated elapsed time
+    elapsedTime: 0,  // Start with 0 elapsed time
   });
 
   try {
-    // Save the new incident
     const savedInsiden = await newInsiden.save();
     res.status(201).json(savedInsiden); // Send back the created incident
   } catch (err) {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
 };
-
 
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
@@ -97,7 +70,7 @@ export const closeInsiden = async (req, res) => {
     }
 
     const currentTime = new Date();
-    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalSubmit);  // Total time since start
+    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalStart);  // Total time since start
     const updatedElapsedTime = insiden.elapsedTime + elapsedMilliseconds;  // Accumulate previous elapsed time
 
     // Update the incident's status and elapsed time
@@ -125,13 +98,13 @@ export const reopenInsiden = async (req, res) => {
 
     // Ensure tanggalStart is not set in the future
     const now = new Date();
-    if (insiden.tanggalSubmit > now) {
+    if (insiden.tanggalStart > now) {
       return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
     }
 
     // Reset the close time and set status to Open
     insiden.status = 'Open';
-    insiden.tanggalSubmit = new Date();  // Set a new start time to continue tracking from now
+    insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
     insiden.closeTime = null;  // Reset close time
 
     await insiden.save();
