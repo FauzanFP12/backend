@@ -31,8 +31,6 @@ export const createInsiden = async (req, res) => {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
- 
-
   // Initialize elapsed time
  
   const newInsiden = new Insiden({
@@ -40,14 +38,14 @@ export const createInsiden = async (req, res) => {
     deskripsi,
     status,
     tanggalStart: adjustedStartDate, // Save adjusted GMT+7 start time
-    tanggalSubmit, // Save adjusted GMT+7 submit time
+    tanggalSubmit,
     sbu,
     backbone,
     superbackbone,
     distribusi,
     access,
     pilihan,
-    elapsedTime,  // Save calculated elapsed time
+    elapsedTime: 0,  // Start with 0 elapsed time
   });
 
   try {
@@ -57,6 +55,7 @@ export const createInsiden = async (req, res) => {
     res.status(500).json({ message: 'Error creating incident', error: err.message });
   }
 };
+
 // UPDATE an incident
 export const updateInsiden = async (req, res) => {
   const { id } = req.params;
