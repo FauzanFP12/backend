@@ -23,6 +23,16 @@ const insidenSchema = new mongoose.Schema({
   pilihan: { type: String },
 });
 
+// Pre-save hook to calculate duration (elapsed time) before saving
+insidenSchema.pre('save', function(next) {
+  if (this.isModified('closeTime') && this.tanggalStart) {
+    const startTime = this.tanggalStart.getTime();
+    const endTime = this.closeTime ? this.closeTime.getTime() : Date.now();
+    this.durasi = endTime - startTime; // Calculate duration in milliseconds
+  }
+  next();
+});
+
 const Insiden = mongoose.model('Insiden', insidenSchema);
 
 export default Insiden;

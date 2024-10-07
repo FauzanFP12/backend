@@ -28,7 +28,7 @@ export const createInsiden = async (req, res) => {
   // If the status is "Closed", calculate the elapsed time between tanggalStart and now
   if (status === 'Closed') {
     const elapsedMilliseconds = now - new Date(tanggalStart);
-    elapsedTime = elapsedMilliseconds;
+    elapsedTime = elapsedMilliseconds > 0 ? elapsedMilliseconds : 0;  // Ensure elapsed time is non-negative
   }
 
   const newInsiden = new Insiden({
