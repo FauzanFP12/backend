@@ -31,9 +31,7 @@ export const createInsiden = async (req, res) => {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
-  if (adjustedSubmitDate > now) {
-    return res.status(400).json({ message: 'Tanggal Submit cannot be in the future' });
-  }
+ 
 
   // Initialize elapsed time
  
