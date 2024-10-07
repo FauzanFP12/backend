@@ -18,7 +18,7 @@ export const createInsiden = async (req, res) => {
 
   // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
-  if (new Date(tanggalStart) > now) {
+  if (new Date(tanggalSubmit) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
   }
 
@@ -79,7 +79,7 @@ export const closeInsiden = async (req, res) => {
     }
 
     const currentTime = new Date();
-    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalStart);  // Total time since start
+    const elapsedMilliseconds = currentTime - new Date(insiden.tanggalSubmit);  // Total time since start
     const updatedElapsedTime = insiden.elapsedTime + elapsedMilliseconds;  // Accumulate previous elapsed time
 
     // Update the incident's status and elapsed time
@@ -107,13 +107,13 @@ export const reopenInsiden = async (req, res) => {
 
     // Ensure tanggalStart is not set in the future
     const now = new Date();
-    if (insiden.tanggalStart > now) {
+    if (insiden.tanggalSubmit > now) {
       return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
     }
 
     // Reset the close time and set status to Open
     insiden.status = 'Open';
-    insiden.tanggalStart = new Date();  // Set a new start time to continue tracking from now
+    insiden.tanggalSubmit = new Date();  // Set a new start time to continue tracking from now
     insiden.closeTime = null;  // Reset close time
 
     await insiden.save();
