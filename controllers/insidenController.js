@@ -16,6 +16,10 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
+  const addGMT7 = (date) => {
+    const gmt7Offset = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
+    return new Date(date.getTime() + gmt7Offset);
+};
   const currentDate = new Date(); // Get current date and time
   const gmt7Date = addGMT7(currentDate); // Adjust to GMT+7
   elapsedTime = gmt7Date - startDate; // Time running until now
