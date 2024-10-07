@@ -16,14 +16,12 @@ export const createInsiden = async (req, res) => {
 
   const { idInsiden, deskripsi, status, tanggalStart, tanggalSubmit, sbu, backbone, superbackbone, distribusi, access, pilihan } = req.body;
 
-  const addGMT7 = (date) => {
-    const gmt7Offset = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
-    return new Date(date.getTime() + gmt7Offset);
-};
-  const currentDate = new Date(); // Get current date and time
-  const gmt7Date = addGMT7(currentDate); // Adjust to GMT+7
-  elapsedTime = gmt7Date - new Date(tanggalStart);; // Time running until now
-  // Validate tanggalStart to ensure it is not in the future
+  let elapsedTime = 0;
+  if (status === 'Closed') {
+    const elapsedMilliseconds = now - new Date(tanggalStart); // Time from start to now
+    elapsedTime = elapsedMilliseconds; // Set elapsed time in milliseconds
+  }
+
   const now = new Date();
   if (new Date(tanggalStart) > now) {
     return res.status(400).json({ message: 'Tanggal Start cannot be in the future' });
@@ -41,7 +39,7 @@ export const createInsiden = async (req, res) => {
     distribusi,
     access,
     pilihan,
-    elapsedTime: elapsedTime,  // Start with 0 elapsed time
+    elapsedTime,  // Start with elapsed time
   });
 
   try {
