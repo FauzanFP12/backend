@@ -18,7 +18,7 @@ export const createInsiden = async (req, res) => {
 
   const currentDate = new Date(); // Get current date and time
   const gmt7Date = addGMT7(currentDate); // Adjust to GMT+7
-  elapsedTime = gmt7Date - startDate; // Time running until now
+  elapsedTime = currentDate - startDate; // Time running until now
   // Validate tanggalStart to ensure it is not in the future
   const now = new Date();
   if (new Date(tanggalStart) > now) {
