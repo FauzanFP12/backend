@@ -51,8 +51,8 @@ export const createInsiden = async (req, res) => {
     idInsiden,
     deskripsi,
     status,
-    tanggalStart: adjustedStartDate,  // Use adjusted start date
-    tanggalSubmit,
+    tanggalSubmit: adjustedStartDate,  // Use adjusted start date
+    tanggalStart,
     sbu,
     backbone,
     superbackbone,
