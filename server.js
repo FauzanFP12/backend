@@ -74,6 +74,8 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
   const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 const uploadDir = '/tmp/uploads';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder di /tmp
