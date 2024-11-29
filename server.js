@@ -27,7 +27,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'https://dashboard-tau-gilt.vercel.app',
+    origin: process.env.FRONTEND_URL || 'http://10.255.254.189:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
@@ -76,15 +76,15 @@ mongoose
   const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Ensure 'uploads' directory exists
-const uploadDir = '/tmp/uploads';
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder di /tmp
+  fs.mkdirSync(uploadDir);
 }
 
 // File upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, uploadDir); // Gunakan folder /tmp/uploads
+      cb(null, path.join(__dirname, 'uploads'));
   },
   filename: (req, file, cb) => {
       const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
@@ -123,13 +123,21 @@ const authenticateJWT = (req, res, next) => {
 };
 // Registration route
 app.post('/api/register', async (req, res) => {
-  const { username, password, fullName } = req.body;
+  const { username, password, fullName, role } = req.body;
+
+  // Valid roles
+  const validRoles = ['user', 'admin'];
 
   try {
     // Check if the user already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    // Check if the role is valid
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Valid roles are: user, admin.' });
     }
 
     // Hash the password
@@ -140,7 +148,7 @@ app.post('/api/register', async (req, res) => {
       username,
       password: hashedPassword,
       fullName,
-      role: 'user', // You can default the role or set it dynamically based on your needs
+      role, // Use the role from the request body
     });
 
     // Save the user to the database
@@ -152,6 +160,7 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ message: 'An error occurred during registration' });
   }
 });
+
 
 
 
@@ -271,6 +280,40 @@ app.get('/api/users', async (req, res) => {
       res.status(500).json({ message: 'Error fetching users' });
   }
 });
+// Update user by username
+
+// Delete user by username
+// Update user by username (case-insensitive search)
+app.put('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);  // Return the updated user object
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user' });
+  }
+});
+
+
+
+// Delete user by username (case-insensitive search)
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    // Use _id to find and delete the user
+    const user = await User.findByIdAndDelete(req.params.id); 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user' });
+  }
+});
+
+
+
 
 
 
