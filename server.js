@@ -27,7 +27,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://10.255.254.189:3000',
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
@@ -74,21 +74,15 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
   const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// Ensure 'uploads' directory exists
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = '/tmp/uploads';
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder di /tmp
 }
 
 // File upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, 'uploads'));
-  },
-  filename: (req, file, cb) => {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-      cb(null, `${uniqueSuffix}-${file.originalname}`);
+      cb(null, uploadDir); // Gunakan folder /tmp/uploads
   },
 });
 
