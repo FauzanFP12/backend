@@ -76,15 +76,15 @@ mongoose
   const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Ensure 'uploads' directory exists
-const uploadDir = '/tmp/uploads';
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder di /tmp
+  fs.mkdirSync(uploadDir);
 }
 
 // File upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, uploadDir); // Gunakan folder /tmp/uploads
+      cb(null, path.join(__dirname, 'uploads'));
   },
   filename: (req, file, cb) => {
       const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
@@ -121,6 +121,38 @@ const authenticateJWT = (req, res, next) => {
     next();
   });
 };
+// Registration route
+app.post('/api/register', async (req, res) => {
+  const { username, password, fullName } = req.body;
+
+  try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = new User({
+      username,
+      password: hashedPassword,
+      fullName,
+      role: 'user', // You can default the role or set it dynamically based on your needs
+    });
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (err) {
+    console.error('Error in register route:', err);
+    res.status(500).json({ message: 'An error occurred during registration' });
+  }
+});
+
 
 
 // Login route (access token + refresh token)
