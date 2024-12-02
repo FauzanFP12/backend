@@ -50,6 +50,24 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Delete a helpdesk ticket by ID
+router.delete('/:ticketId', async (req, res) => {
+  const { ticketId } = req.params;
+
+  try {
+    const ticket = await HelpdeskTicket.findByIdAndDelete(ticketId);
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    res.status(200).json({ message: 'Ticket deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete ticket', error: err.message });
+  }
+});
+
+
 // Get messages for a specific helpdesk ticket (if required)
 router.get('/:ticketId/chat', async (req, res) => {
   try {
