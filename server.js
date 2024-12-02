@@ -27,7 +27,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || 'http://10.255.254.189:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   },
@@ -74,17 +74,21 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
   const __filename = fileURLToPath(import.meta.url);
-
 const __dirname = path.dirname(__filename);
-const uploadDir = '/tmp/uploads';
+// Ensure 'uploads' directory exists
+const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true }); // Buat folder di /tmp
+  fs.mkdirSync(uploadDir);
 }
 
 // File upload configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-      cb(null, uploadDir); // Gunakan folder /tmp/uploads
+      cb(null, path.join(__dirname, 'uploads'));
+  },
+  filename: (req, file, cb) => {
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+      cb(null, `${uniqueSuffix}-${file.originalname}`);
   },
 });
 
@@ -282,13 +286,21 @@ app.get('/api/users', async (req, res) => {
 // Update user by username (case-insensitive search)
 app.put('/api/users/:id', async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const { username, password, fullName, role } = req.body;
+    const updatedData = { username, fullName, role };
+
+    // Hash password if it's updated
+    if (password) {
+      const saltRounds = 10;
+      updatedData.password = await bcrypt.hash(password, saltRounds);
     }
-    res.status(200).json(user);  // Return the updated user object
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+    if (!updatedUser) return res.status(404).send({ message: 'User not found' });
+
+    res.status(200).send({ message: 'User updated successfully', user: updatedUser });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating user' });
+    res.status(500).send({ message: 'Error updating user', error });
   }
 });
 
